@@ -200,8 +200,8 @@
         ((even? count)
          (fib-iter a
                    b
-                   <??>
-                   <??>
+                   (+ (* p p) (* q q))   ; p' = p^2 + q^2
+                   (+ (* q q) (* 2 p q)) ; q' = q^2 + 2pq
                    (/ count 2)))
         (else (fib-iter (+ (* b q) (* a q) (* a p))
                         (+ (* b p) (* a q))
