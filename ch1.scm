@@ -272,9 +272,9 @@
 
 (define (carmichael? n)
   (define (carmichael-iter a n)
-    (cond ((= a n) #t)
+    (cond ((= a n) true)
           ((= (expmod a n n) a) (carmichael-iter (+ 1 a) n))
-          (else #f)))
+          (else false)))
   (and (carmichael-iter 2 n) (not (prime? n))))
 
 ;;; Exercise 1.28
@@ -283,10 +283,10 @@
 (define (expmod-1.28 base exp m)
   (cond ((= exp 0) 1)
         ((even? exp)
-         (if (and (not (or (= base 1)
+         (if (and (not (or (= base 1)   ; a nontrivial square root of 1 mod m
                            (= base (- m 1))))
                   (= (remainder (square base) m) 1))
-             0
+             0                          ; return 0 to signal nontrivial sqrt
              (remainder (square (expmod-1.28 base (/ exp 2) m))
                         m)))
         (else (remainder (* base (expmod-1.28 base (- exp 1) m))
