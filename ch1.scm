@@ -2,9 +2,21 @@
 (define (square n)
   (* n n))
 
+(define (cube n)
+  (* n n n))
+
+(define (inc n)
+  (+ n 1))
+
+(define (dec n)
+  (- n 1))
+
+(define (identity n)
+  n)
+
 ;;; Exercise 1.1
 ;;; ============
-;;; A bunch ov evals
+;;; A bunch of evals
 
 ;;; Exercise 1.2
 ;;; =============
@@ -301,3 +313,202 @@
   (cond ((= times 0) true)
         ((miller-rabin-test n) (fast-prime-1.28? n (- times 1)))
         (else false)))
+
+;;; Exercise 1.29
+;;; =============
+
+;; Use Simpson's Rule to compute the integral of f over [a,b] with
+;; number of steps n.  n must be even.
+(define (sr-integral f a b n)
+  (let ((h (/ (- b a) n))
+        (y0 (f a))
+        (yn (f b)))
+    (define (sr-integral-iter k acc)
+      (if (= k n)
+          acc
+          (let ((yk (f (+ a (* k h)))))
+            (sr-integral-iter (+ k 1)
+                              (+ acc
+                                 (if (odd? k)
+                                     (* 4 yk)
+                                     (* 2 yk)))))))
+    (* (/ h 3) (+ y0 yn (sr-integral-iter 1 0)))))
+
+;;; Exercise 1.30
+;;; =============
+
+(define (sum term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ result (term a)))))
+  (iter a 0))
+
+;;; Exercise 1.31
+;;; =============
+
+;; a. recursively
+(define (product-r term a next b)
+  (if (> a b)
+      1
+      (* (term a)
+         (product-r term (next a) next b))))
+
+;; b. iteratively
+(define (product term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* result (term a)))))
+  (iter a 1))
+
+(define (factorial n)
+  (product identity 1 inc n))
+
+(define (approx-pi n)
+  (define (frac a)
+    (if (even? a)
+        (/ (+ a 2) (+ a 1))
+        (/ (+ a 1) (+ a 2))))
+  (* 4 (product frac 1 inc n)))
+
+;;; Exercise 1.32
+;;; =============
+
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a)
+              (combiner result (term a)))))
+  (iter a null-value))
+
+(define (sum term a next b)
+  (accumulate + 0 term a next b))
+
+(define (product term a next b)
+  (accumulate * 1 term a next b))
+
+;;; Exercise 1.33
+;;; =============
+
+(define (filtered-accumulate combiner predicate? null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a)
+              (if (predicate? a)
+                  (combiner result (term a))
+                  result))))
+  (iter a null-value))
+
+(define (sum-sq-prime a b)
+  (filtered-accumulate + prime? 0 square a inc b))
+
+(define (gcd a b)
+  (if (= b 0)
+      a
+      (gcd b (modulo a b))))
+
+(define (ex1.33b n)
+  (define (rel-prime? a)
+    (= 1 (gcd a n)))
+  (filtered-accumulate * rel-prime? 1 identity 2 inc (- n 1)))
+
+;;; Exercise 1.34
+;;; =============
+
+;; (f f) gives an error, because (f f) --> (f 2) --> (2 2) gives an error
+
+;;; Exercise 1.35
+;;; =============
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(define phi (fixed-point (lambda (x) (+ 1 (/ 1 x))) 1.0))
+
+;;; Exercise 1.36
+;;; =============
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let ((next (f guess)))
+      (display "Guess: ")
+      (display next)
+      (newline)
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+;; Without average damping: 34 steps
+;; With average damping: 9 steps
+
+;;; Exercise 1.37
+;;; =============
+
+(define (cont-frac n d k)
+  (define (iter i result)
+    (if (= i 0)
+        result
+        (iter (dec i)
+              (/ (n i)
+                 (+ (d i) result)))))
+  (iter k 0))
+
+;; k = 12
+;; b. I don't want to write recursively. Much easier to write iteratively.
+
+;;; Exercise 1.38
+;;; =============
+
+(define (euler-e k)
+  (+ 2
+     (cont-frac (lambda (i) 1.0)
+                (lambda (i)
+                  (if (= (modulo i 3) 2)
+                      (* 2 (+ 1 (quotient i 3)))
+                      1))
+                k)))
+
+;;; Exercise 1.39
+;;; =============
+
+(define (tan-cf x k)
+  (let ((x2 (square x)))
+    (cont-frac (lambda (i)
+                 (if (= i 1)
+                     x
+                     x2))
+               (lambda (i)
+                 (- (* 2 i) 1))
+               k)))
+
+;;; Exercise 1.40
+;;; =============
+
+(define (cubic a b c)
+  (lambda (x)
+    (+ (cube x) (* a (square x)) (* b x) c)))
+
+;;; Exercise 1.41
+;;; =============
+
+(define (double f)
+  (lambda (x)
+    (f (f x))))
+
+;; (((double (double double)) inc) 5)
+;; --> 21
