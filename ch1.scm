@@ -171,11 +171,11 @@
 
 ;;; Exercise 1.16
 ;;; =============
-(define (fast-expt b n)
+(define (fast-expt-r b n)
   (cond ((= n 0) 1)
         ((even? n) (square (fast-expt b (/ n 2))))
         (else (* b (fast-expt b (- n 1))))))
-(define (fast-expt1 b n)
+(define (fast-expt b n)
   ;; invariant: a * b^n remains constant
   (define (fast-expt-iter a b n)
     (cond ((= n 0) a)
@@ -440,7 +440,7 @@
 ;;; =============
 
 (define tolerance 0.00001)
-(define (fixed-point f first-guess)
+(define (fixed-point-1.36 f first-guess)
   (define (close-enough? v1 v2)
     (< (abs (- v1 v2)) tolerance))
   (define (try guess)
@@ -512,3 +512,75 @@
 
 ;; (((double (double double)) inc) 5)
 ;; --> 21
+
+;;; Exercise 1.42
+;;; =============
+
+(define (compose f g)
+  (lambda (x)
+    (f (g x))))
+
+;;; Exercise 1.43
+;;; =============
+
+(define (repeated f n)
+  (if (= n 1)
+      f
+      (compose f (repeated f (dec n)))))
+
+;;; Exercise 1.44
+;;; =============
+
+(define dx 0.0001)
+(define (smooth f)
+  (lambda (x)
+    (/ (+ (f (- x dx))
+          (f x)
+          (f (+ x dx)))
+       3)))
+
+(define (n-fold-smooth f n)
+  ((repeated smooth n) f))
+
+;;; Exercise 1.45
+;;; =============
+
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (log2 x)
+  (/ (log x) (log 2)))
+
+(define (nth-root n x)
+  (fixed-point ((repeated average-damp (floor (log2 n)))
+                (lambda (y)
+                   (/ x (expt y (- n 1)))))
+               1.0))
+
+;;; Exercise 1.46
+;;; =============
+
+(define (iterative-improve good-enough? improve)
+  (lambda (x)
+    (define (try guess)
+      (if (good-enough? guess)
+          guess
+          (try (improve guess))))
+    (try x)))
+
+(define tolerance 0.00001)
+(define (fixed-point f first-guess)
+  (iterative-improve (lambda (x)
+                       (< (abs (- x (f x))) tolerance))
+                     (lambda (x)
+                       (f x))))
+
+(define (sqrt-1.46 x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess)
+               x))
+       0.0001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  ((iterative-improve good-enough? improve) 1.0))
+
