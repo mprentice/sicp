@@ -78,3 +78,80 @@
 
 (define (multiplicand p)
   (fold-left make-product 1 (cddr p)))
+
+;;; Exercise 2.58a
+;;; ==============
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list m1 '* m2))))
+
+(define (sum? x)
+  (and (pair? x) (eq? (cadr x) '+)))
+
+(define (addend s) (car s))
+
+(define (augend s)
+  (caddr s))
+
+(define (product? x)
+  (and (pair? x) (eq? (cadr x) '*)))
+
+(define (multiplier p) (car p))
+
+(define (multiplicand p)
+  (caddr p))
+
+;;; Exercise 2.58b
+;;; ==============
+
+(define (make-sum a1 a2)
+  (cond ((=number? a1 0) a2)
+        ((=number? a2 0) a1)
+        ((and (number? a1) (number? a2)) (+ a1 a2))
+        (else (list a1 '+ a2))))
+
+(define (make-product m1 m2)
+  (cond ((or (=number? m1 0) (=number? m2 0)) 0)
+        ((=number? m1 1) m2)
+        ((=number? m2 1) m1)
+        ((and (number? m1) (number? m2)) (* m1 m2))
+        (else (list m1 '* m2))))
+
+(define (sum? x)
+  (and (pair? x)
+       (pair? (cdr x))
+       (or (eq? (cadr x) '+)
+           (sum? (cddr x)))))
+
+(define (addend s)
+  (if (eq? (cadr s) '+)
+      (car s)
+      (list (car s) (cadr s) (addend (cddr s)))))
+
+(define (augend s)
+  (if (eq? (cadr s) '+)
+      (if (empty? (cdddr s))
+          (caddr s)
+          (cddr s))
+      (augend (cddr s))))
+
+(define (product? x)
+  (and (not (sum? x))
+       (pair? x) (eq? (cadr x) '*)))
+
+(define (multiplier p) (car p))
+
+(define (multiplicand p)
+  (if (empty? (cdddr p))
+      (caddr p)
+      (cddr p)))
