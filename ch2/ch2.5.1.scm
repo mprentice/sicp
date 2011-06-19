@@ -230,7 +230,26 @@
 ;;; Exercise 2.79
 ;;; =============
 
+(define (equ? x y) (apply-generic 'equ? x y))
+(put 'equ? '(complex complex)
+     (lambda (x y)
+       (and (equal? (real-part x) (real-part y))
+            (equal? (imag-part x) (imag-part y)))))
+(put 'equ? '(rational rational)
+     (lambda (x y)
+       (and (equal? (numer x) (numer y))
+            (equal? (denom x) (denom y)))))
+(put 'equ? '(number number) equal?)
 
 ;;; Exercise 2.80
 ;;; =============
 
+(define (=zero? x) (apply-generic '=zero? x))
+(put '=zero? '(complex)
+     (lambda (x)
+       (= (magnitude x) 0)))
+(put '=zero? '(rational)
+     (lambda (x)
+       (= (numer x) 0)))
+(put '=zero? '(number)
+     (lambda (x) (= x 0)))
