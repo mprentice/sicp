@@ -2,6 +2,8 @@
 
 ;;; Metacircular evaluator from Chapter 4 of SICP
 
+;;; (define apply-in-underlying-scheme apply)
+
 ;;; 4.1.1 Core
 
 ;;; Evaluate an expression in a given environment.
@@ -18,12 +20,12 @@
                                   env))
         ((begin? exp) (eval-sequence (begin-actions exp) env))
         ((cond? exp) (eval (cond->if exp) env))
-        ((application? exp) (apply (eval (operator exp) env)
+        ((application? exp) (metacircular-apply (eval (operator exp) env)
                                    (list-of-values (operands exp) env)))
         (else (error "Unknown expression type -- EVAL" exp))))
 
 ;;; Apply a procedure to its arguments.
-(define (apply procedure arguments)
+(define (metacircular-apply procedure arguments)
   (cond ((primitive-procedure? procedure)
          (apply-primitive-procedure procedure arguments))
         ((compound-procedure? procedure)
@@ -31,7 +33,7 @@
                         (extend-environment (procedure-parameters procedure)
                                             arguments
                                             (procedure-environment procedure))))
-        (else (error ("Unknown procedure type -- APPLY" procedure)))))
+        (else (error ("Unknown procedure type -- METACIRCULAR-APPLY" procedure)))))
 
 ;;; Return eval applied to a list of expressions.
 (define (list-of-values exps env)
@@ -128,7 +130,7 @@
       'false))
 
 (define (make-if predicate consequent alternative)
-  (list 'if predicate consequence alternative))
+  (list 'if predicate consequent alternative))
 
 (define (begin? exp) (tagged-list? exp 'begin))
 
@@ -200,7 +202,7 @@
   (list 'procedure parameters body env))
 
 (define (compound-procedure? p)
-  (taggled-list? p 'procedure))
+  (tagged-list? p 'procedure))
 
 (define (procedure-parameters p) (cadr p))
 
@@ -264,4 +266,70 @@
             ((eq? var (car vars)) (set-car! vals val))
             (else (scan (cdr vars) (cdr vals)))))
     (scan (frame-variables frame) (frame-values frame))))
+
+;;; 4.1.4 Running the Evaluator as a Program
+
+(define primitive-procedures
+  (list (list 'car car)
+        (list 'cdr cdr)
+        (list 'cons cons)
+        (list 'null? null?)
+        ;; more primitives
+        (list '+ +)
+        (list '- -)
+        (list '* *)
+        (list '/ /)
+        ))
+
+(define (primitive-procedure-names)
+  (map car primitive-procedures))
+
+(define (primitive-procedure-objects)
+  (map (lambda (proc) (list 'primitive (cadr proc)))
+       primitive-procedures))
+
+(define (setup-environment)
+  (let ((initial-env
+         (extend-environment (primitive-procedure-names)
+                             (primitive-procedure-objects)
+                             the-empty-environment)))
+    (define-variable! 'true true initial-env)
+    (define-variable! 'false false initial-env)
+    initial-env))
+
+(define the-global-environment (setup-environment))
+
+(define (primitive-procedure? proc) (tagged-list? proc 'primitive))
+
+(define (primitive-implementation proc) (cadr proc))
+
+(define (apply-primitive-procedure proc args)
+  (apply
+   (primitive-implementation proc) args))
+
+(define input-prompt ";;; M-Eval input:")
+(define output-prompt ";;; M-Eval value:")
+
+(define (driver-loop)
+  (prompt-for-input input-prompt)
+  (let ((input (read)))
+    (let ((output (eval input the-global-environment)))
+      (announce-output output-prompt)
+      (user-print output)))
+  (driver-loop))
+
+(define (prompt-for-input string)
+  ;; "> " is a hack to get around Emacs' read-only input prompt
+  (newline) (display string) (newline) (display "> "))
+
+(define (announce-output string)
+  (newline) (display string) (newline))
+
+(define (user-print object)
+  (if (compound-procedure? object)
+      (display (list 'compound-procedure?
+                     (procedure-parameters object)
+                     (procedure-body object)
+                     '<procedure-env>))
+      (display object)))
 
