@@ -32,7 +32,7 @@
 
 ;;; Apply a procedure to its arguments. For primitive procedures,
 ;;; which are strict, we evaluate all arguments before applying the
-;;; primitive. For compout procedures, which are non-strict, we delay
+;;; primitive. For compound procedures, which are non-strict, we delay
 ;;; all the arguments.
 (define (lazy-apply procedure arguments env)
   (cond ((primitive-procedure? procedure)
@@ -83,7 +83,7 @@
                         (thunk-exp obj)
                         (thunk-env obj))))
            ;; Replace exp with its value and forget unneeded env
-           (set-car! obj 'evaluted-thunk)
+           (set-car! obj 'evaluated-thunk)
            (set-car! (cdr obj) result)
            (set-cdr! (cdr obj) '())
            result))
