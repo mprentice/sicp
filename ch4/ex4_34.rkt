@@ -410,25 +410,13 @@
 (define (display-lazy-cons lazy-cons)
   (display (list 'cons '...)))
 
-;;; Ex 4.33 Results
+;;; Ex 4.34 Results
 
 ;; ;;; L-Eval input:
-;; > (define (cons x y) (lambda (m) (m x y)))
+;; > (cons 'a (cons 'b '()))
 
 ;; ;;; L-Eval value:
-;; ok
+;; (cons ...)
 ;; ;;; L-Eval input:
-;; > (define (car z) (z (lambda (p q) p)))
-
-;; ;;; L-Eval value:
-;; ok
-;; ;;; L-Eval input:
-;; > (define (cdr z) (z (lambda (p q) q)))
-
-;; ;;; L-Eval value:
-;; ok
-;; ;;; L-Eval input:
-;; > (car '(a b c))
-
-;; ;;; L-Eval value:
-;; a
+;; > (car (cons 'a (cons 'b '())))
+;; 'a
