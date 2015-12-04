@@ -1,0 +1,15 @@
+* Exercise 4.39
+
+Re-ordering would make no difference to the answer.
+
+I think re-ordering would make a slight difference in the runtime, but it would
+be a tiny difference.
+
+This is hand-wavier than I'd like since I'm not enumerating all possibile paths
+to calculate number of steps.
+
+Update: After writing this I found
+https://wqzhang.wordpress.com/2010/04/23/sicp-exercise-4-39/ which shows
+ordering can have a bigger effect on runtime than I thought. That is a good
+preliminary analysis of possibility space. I have to consider efficiency of the
+tests and number of times the test is called.

@@ -1,0 +1,65 @@
+* Exercise 4.38
+
+** Original
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    | X | X |   | X | X |
+| cooper   | X |   | X | X | X |
+| fletcher | X | X | X |   | X |
+| miller   | X | X | X | X |   |
+| smith    |   | X | X | X | X |
+
+** Modified
+
+Fletcher can be on 2:
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    | X | X |   | X | X |
+| cooper   | X | X | X |   | X |
+| fletcher | X |   | X | X | X |
+| miller   | X | X | X | X |   |
+| smith    |   | X | X | X | X |
+
+And the original:
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    | X | X |   | X | X |
+| cooper   | X |   | X | X | X |
+| fletcher | X | X | X |   | X |
+| miller   | X | X | X | X |   |
+| smith    |   | X | X | X | X |
+
+Smith on 2 is impossible because it forces cooper and fletcher to be on the
+same floor.
+
+Smith on 3, cooper on 2:
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    |   | X | X | X | X |
+| cooper   | X |   | X | X | X |
+| fletcher | X | X | X |   | X |
+| miller   | X | X | X | X |   |
+| smith    | X | X |   | X | X |
+
+Smith on 3, cooper on 4:
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    |   | X | X | X | X |
+| cooper   | X | X | X |   | X |
+| fletcher | X |   | X | X | X |
+| miller   | X | X | X | X |   |
+| smith    | X | X |   | X | X | 
+
+Smith on 4 is impossible because it forces cooper and fletcher to be on the
+same floor.
+
+Smith on 5, cooper on 2:
+
+|          | 1 | 2 | 3 | 4 | 5 |
+| baker    |   | X | X | X | X |
+| cooper   | X |   | X | X | X |
+| fletcher | X | X | X |   | X |
+| miller   | X | X |   | X | X |
+| smith    | X | X | X | X |   |
+
+There are 5 possible solutions to the modified puzzle.
